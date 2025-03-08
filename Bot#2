@@ -47,4 +47,48 @@ async def repeat(ctx, times: int, content='repeating...'):
     for i in range(times):
         await ctx.send(content)
 
+@bot.command()
+async def trivia(ctx):
+    preguntas = {
+        "¿Cuál es la capital de Colombia?": "Bogotá",
+        "¿Cuántos planetas hay en el sistema solar?": "8",
+        "¿Quién escribió 'Cien años de soledad'?": "Gabriel García Márquez"
+    }
+    pregunta, respuesta = random.choice(list(preguntas.items()))
+    await ctx.send(pregunta)
+
+    def check(m):
+        return m.author == ctx.author and m.channel == ctx.channel
+
+    try:
+        mensaje = await bot.wait_for("message", check=check, timeout=15.0)
+        if mensaje.content.lower() == respuesta.lower():
+            await ctx.send(f'🎉 ¡Correcto, {ctx.author.mention}!')
+        else:
+            await ctx.send(f'❌ Incorrecto. La respuesta era {respuesta}.')
+    except:
+        await ctx.send(f'⏰ Se acabó el tiempo. La respuesta era {respuesta}.')
+
+@bot.command()
+async def jugar(ctx, eleccion: str):
+    """Juega piedra, papel o tijeras."""
+    opciones = ["piedra", "papel", "tijeras"]
+    bot_eleccion = random.choice(opciones)
+
+    if eleccion not in opciones:
+        await ctx.send("❌ Por favor elige entre: piedra, papel o tijeras.")
+        return
+
+    resultado = None
+    if eleccion == bot_eleccion:
+        resultado = "¡Es un empate! 😐"
+    elif (eleccion == "piedra" and bot_eleccion == "tijeras") or \
+         (eleccion == "papel" and bot_eleccion == "piedra") or \
+         (eleccion == "tijeras" and bot_eleccion == "papel"):
+        resultado = f"🎉 ¡Ganaste! Yo elegí {bot_eleccion}."
+    else:
+        resultado = f"❌ Perdíste. Yo elegí {bot_eleccion}."
+
+    await ctx.send(resultado)
+
 bot.run("Token")
